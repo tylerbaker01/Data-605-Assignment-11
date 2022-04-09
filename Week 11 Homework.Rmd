@@ -1,0 +1,96 @@
+---
+title: "Data 605 Homework 11"
+author: "Tyler Baker"
+date: "4/9/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Homework 11
+## Tyler Baker
+
+Using the “cars” dataset in R, build a linear model for stopping distance as a function of speed and
+replicate the analysis of your textbook chapter 3 (visualization, quality evaluation of the model, and
+residual analysis.)
+
+### The data
+
+First I must load the cars data and get a feel for it.
+```{r}
+data(cars)
+head(cars)
+?cars
+```
+
+### Visualization
+
+We should begin by making a simple scatterplot.
+```{r}
+ggplot(cars, aes(x= speed, y= dist))+
+  geom_point()
+```
+It appears that there is a strong relationship between speed and stopping distance.
+
+### Visualizing the Linear Model
+
+Here I will use ggplot's built in functions to look at a linear regression model put on top of the previous scatterplot.
+```{r}
+ggplot(cars, aes(x = speed, y= dist))+
+  geom_point()+
+  geom_smooth(method=lm)
+```
+
+
+### The Linear Model
+
+Here we will find the linear model exactly, and discuss how good or bad of a fit it is.
+
+#### The Model itself
+```{r}
+attach(cars)
+cars.lm <- lm(dist ~ speed)
+cars.lm
+```
+
+Thus, the y-intercept it -17.579, and are slope is 3.932
+
+#### The Justification
+
+Now let's see if the linear model is justified.
+```{r}
+summary(cars.lm)
+```
+##### Residuals
+First we check the residuals. We want the residuals to look near normal where the mean is close to 0.
+
+With a median of -2.272 we are close to 0.
+The quartiles should be near equidistant from the mean. The |Q1| is about equal to |Q3| so they're good. The min and max should also follow these rules. The |max| is a little greater than |min| so we have a little pull to the right. 
+
+So for the residuals we have almost checked every box. The unchecked box wasn't all too bad. We look like we're in good shape, but we need to keep investigating.
+
+##### Estimated Coeff.
+For a good model we want to see the standard error that is at least five to ten times smaller than the corresponding coefficient. Here, our's is 9.464 times smaller. So we have another boxed checked. Lastly, we have to note that speed has a significance code of *** which means that it has a vital role on stopping distance. Another good thing for our model.
+
+##### The last statistics
+Here we want our previous quartiles to be about 1.5 times this standard error. This is not what we are getting.
+Looking at the R^2. We see that our model describes about 65% of the data.
+
+##### The residual plot
+```{r}
+plot(fitted(cars.lm),resid(cars.lm))
+```
+Here we should see residuals that are normally distributed between being above and below 0. That is not our case. There are clearly more negative residuals.
+
+##### The QQ plot
+```{r}
+qqnorm(resid(cars.lm))
+qqline(resid(cars.lm))
+```
+Ideally our points will be very close to the line. In our case the points are indeed very close to the line for most of the line.
+
+##### Conclusion
+In conclusion, most of the needed boxes were checked. This linear model is justified. Furthermore, the discrepencies come from other input factors we do not have. Some other input factors include weight, brake conditions, weather conditions, along with others. However, with all of that being said, I am happy to say that speed does impact stopping distance.
